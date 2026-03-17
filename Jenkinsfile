@@ -1,15 +1,26 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.9'
+        }
+    }
 
     stages {
-        stage('Install Python & Run Model') {
+        stage('Install Dependencies') {
             steps {
-                sh '''
-                apt update
-                apt install -y python3 python3-pip
-                pip3 install -r requirements.txt
-                python3 src/train_weather.py
-                '''
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Run Weather Model') {
+            steps {
+                sh 'python src/train_weather.py'
+            }
+        }
+
+        stage('Archive Model') {
+            steps {
+                archiveArtifacts artifacts: 'models/**/*'
             }
         }
     }
